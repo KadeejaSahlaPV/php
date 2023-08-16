@@ -1,0 +1,50 @@
+// Write a JavaScript program to display the nth prime number. Value of n should be accepted from the user. Validate the value entered by the user: Only positive numbers except 0 are to be accepted.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime Number Generator</title>
+</head>
+<body>
+    <h1>Prime Number Generator</h1>
+    <p>Enter a positive number (excluding zero) to display the first n prime numbers:</p>
+    <input type="number" id="inputNumber" placeholder="Enter a number">
+    <button id="generateButton">Generate Prime Numbers</button>
+    <div id="primeNumbers"></div>
+
+</body>
+</html>
+
+
+//script4.js
+function generatePrimes(n) {
+    const primeNumbers = [];
+    
+    for (let num = 2; primeNumbers.length < n; num++) {
+        let isPrime = true;
+        
+        for (let i = 2; i <= Math.sqrt(num); i++) {
+            if (num % i === 0) {
+                isPrime = false;
+                break;
+            }
+        }
+        
+        if (isPrime) {
+            primeNumbers.push(num);
+        }
+    }
+    
+    return primeNumbers;
+}
+
+document.getElementById("generateButton").addEventListener("click", function () {
+    const userInput = document.getElementById("inputNumber").value;
+    const n = parseInt(userInput);
+
+    const primeNumbers = generatePrimes(n);
+
+    const primeNumbersDiv = document.getElementById("primeNumbers");
+    primeNumbersDiv.innerHTML = primeNumbers.join(", ");
+});
