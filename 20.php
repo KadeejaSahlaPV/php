@@ -16,16 +16,18 @@
 </body>
           </html>
 <?php
-// Establish a database connection (replace with your database credentials)
-$servername = "your_server";
-$username = "your_username";
-$password = "your_password";
-$dbname = "your_database";
+// PostgreSQL database connection settings
+$host = "your_host"; // Replace with your PostgreSQL host
+$port = "your_port"; // Replace with your PostgreSQL port
+$dbname = "your_database"; // Replace with your PostgreSQL database name
+$user = "your_username"; // Replace with your PostgreSQL username
+$password = "your_password"; // Replace with your PostgreSQL password
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Connect to the PostgreSQL database
+$conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if (!$conn) {
+    die("Connection failed: " . pg_last_error());
 }
 
 // Get form data
@@ -34,30 +36,33 @@ $amount = $_POST['amount'];
 $transaction_type = $_POST['transaction_type'];
 
 // Retrieve the current balance for the account
-$sql = "SELECT balance FROM bank WHERE accno = $accno";
-$result = $conn->query($sql);
+$query = "SELECT balance FROM bank WHERE accno = $accno";
+$result = pg_query($conn, $query);
 
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
+if ($result) {
+    $row = pg_fetch_assoc($result);
     $current_balance = $row['balance'];
 
     // Update the balance based on the transaction type
     if ($transaction_type === "deposit") {
         $new_balance = $current_balance + $amount;
-    } else if ($transaction_type === "withdraw") {
+    } elseif ($transaction_type === "withdraw") {
         $new_balance = $current_balance - $amount;
     }
 
     // Update the balance in the database
-    $update_sql = "UPDATE bank SET balance = $new_balance WHERE accno = $accno";
-    if ($conn->query($update_sql) === TRUE) {
+    $update_query = "UPDATE bank SET balance = $new_balance WHERE accno = $accno";
+    $update_result = pg_query($conn, $update_query);
+
+    if ($update_result) {
         echo "Transaction completed successfully. New balance: $new_balance";
     } else {
-        echo "Error updating balance: " . $conn->error;
+        echo "Error updating balance: " . pg_last_error();
     }
 } else {
     echo "Account not found.";
 }
 
-$conn->close();
+// Close the database connection
+pg_close($conn);
 ?>
